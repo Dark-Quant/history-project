@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Транспорт Средневековой Руси</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Alegreya:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment: #f4e8c1;
+  --parchment-dark: #d4c5a0;
+  --ink: #2c1810;
+  --ink-light: #5a3a28;
+  --gold: #b8860b;
+  --gold-light: #d4a828;
+  --river: #3a6b8c;
+  --forest: #2d5a27;
+  --red: #8b1a1a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Alegreya', Georgia, serif;
+  background: var(--parchment);
+  color: var(--ink);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Parchment texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(139,90,43,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(139,90,43,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(139,90,43,0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background:
+    linear-gradient(180deg, rgba(44,24,16,0.7) 0%, rgba(44,24,16,0.4) 50%, rgba(44,24,16,0.8) 100%),
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="p" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M0 20h40M20 0v40" stroke="%23b8860b22" stroke-width="0.5"/></pattern></defs><rect fill="%231a0e08" width="200" height="200"/><rect fill="url(%23p)" width="200" height="200"/></svg>');
+  background-size: cover;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(transparent, var(--parchment));
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 2rem;
+}
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+
+.hero .subtitle {
+  font-family: 'Alegreya', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  color: var(--parchment-dark);
+  margin-bottom: 2rem;
+}
+
+.hero .scroll-hint {
+  color: var(--gold);
+  font-size: 0.95rem;
+  animation: pulse 2s infinite;
+  cursor: pointer;
+}
+
+.hero .scroll-hint span {
+  display: block;
+  font-size: 1.8rem;
+  margin-top: 0.3rem;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(5px); }
+}
+
+/* Ornament divider */
+.ornament {
+  text-align: center;
+  margin: 3rem 0;
+  color: var(--gold);
+  font-size: 1.5rem;
+  letter-spacing: 1em;
+  opacity: 0.6;
+}
+
+/* Sections */
+.section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  margin: 2rem 0 1rem;
+}
+
+.section p {
+  margin-bottom: 1.2rem;
+  text-align: justify;
+  text-indent: 2rem;
+  font-size: 1.05rem;
+}
+
+.section p:first-of-type {
+  text-indent: 0;
+}
+
+.section p::first-letter {
+  /* only for first p after h2 */
+}
+
+/* Drop cap for intro paragraphs */
+.drop-cap::first-letter {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem;
+  float: left;
+  line-height: 0.8;
+  padding-right: 0.1em;
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* Image gallery cards */
+.img-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.img-card {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(44,24,16,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.img-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(44,24,16,0.18);
+}
+
+.img-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 2px solid var(--gold);
+}
+
+.img-card .caption {
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Map section */
+.map-section {
+  max-width: 1100px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.map-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+#map {
+  width: 100%;
+  height: 550px;
+  border: 3px solid var(--ink-light);
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(44,24,16,0.2);
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255,255,255,0.7);
+  border-radius: 4px;
+  border: 1px solid var(--parchment-dark);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-line {
+  width: 30px;
+  height: 3px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+/* Tabs for transport types */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin: 2rem 0 0;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  font-family: 'Alegreya', serif;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--parchment-dark);
+  border-bottom: none;
+  background: var(--parchment-dark);
+  color: var(--ink-light);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  border-radius: 4px 4px 0 0;
+}
+
+.tab-btn.active {
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  border-color: var(--gold);
+  border-top: 3px solid var(--gold);
+}
+
+.tab-content {
+  display: none;
+  background: #fff;
+  border: 1px solid var(--gold);
+  padding: 1.5rem;
+  border-radius: 0 4px 4px 4px;
+  box-shadow: 0 4px 15px rgba(44,24,16,0.08);
+}
+
+.tab-content.active { display: block; }
+
+.tab-content h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  color: var(--red);
+  margin-bottom: 0.8rem;
+}
+
+.tab-content p {
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+/* Sources */
+.sources {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.sources h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.sources ol {
+  padding-left: 1.5rem;
+}
+
+.sources li {
+  margin-bottom: 0.6rem;
+  font-size: 0.92rem;
+  color: var(--ink-light);
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem;
+  background: var(--ink);
+  color: var(--parchment-dark);
+  font-size: 0.85rem;
+  margin-top: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+footer .ornament-footer {
+  color: var(--gold);
+  font-size: 1.2rem;
+  letter-spacing: 0.5em;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .section { padding: 1.5rem 1rem; }
+  .tabs { gap: 0.3rem; }
+  .tab-btn { padding: 0.5rem 0.8rem; font-size: 0.82rem; }
+  #map { height: 380px; }
+}
+
+/* Leaflet popup styling */
+.leaflet-popup-content-wrapper {
+  font-family: 'Alegreya', serif;
+  border-radius: 4px;
+  border: 1px solid var(--gold);
+}
+.leaflet-popup-content {
+  margin: 10px 14px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.leaflet-popup-content b {
+  color: var(--red);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <h1>Транспорт Средневековой Руси</h1>
+    <p class="subtitle">Водные пути, санные дороги и волоки IX–XV веков</p>
+    <div class="scroll-hint" onclick="document.querySelector('.map-section').scrollIntoView({behavior:'smooth'})">
+      Исследовать карту
+      <span>⌄</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="map-section">
+  <h2>Карта путей сообщения Древней Руси</h2>
+  <div id="map"></div>
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-line" style="background:#1a5276"></div> Путь «из варяг в греки»</div>
+    <div class="legend-item"><div class="legend-line" style="background:#b8860b"></div> Волжский торговый путь</div>
+    <div class="legend-item"><div class="legend-line" style="background:#2d5a27"></div> Северо-Двинский путь</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8b1a1a"></div> Города</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d4a828; border:2px solid #8b1a1a"></div> Волоки</div>
+  </div>
+</div>
+
+<div class="ornament">✦ ✦ ✦</div>
+
+<!-- INTRO -->
+<div class="section">
+  <h2>Введение</h2>
+  <p class="drop-cap">Транспортная система Средневековой Руси формировалась под воздействием природных, экономических и политических факторов. Огромная территория государства, покрытая лесами, болотами и разветвлённой речной сетью, определяла специфику путей сообщения. В отличие от стран Западной Европы, где ключевую роль играли сухопутные дороги, на Руси транспортная система строилась вокруг водных артерий, сезонных дорог и специализированных средств передвижения.</p>
+  <p>Особое значение имела сезонность. Зимой замёрзшие реки и болота превращались в удобные транспортные магистрали, тогда как весной и осенью наступала распутица — период, когда передвижение становилось практически невозможным.</p>
+</div>
+
+<!-- TRANSPORT TYPES with tabs -->
+<div class="section">
+  <h2>Виды транспорта</h2>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="openTab(event,'sani')">Сани</button>
+    <button class="tab-btn" onclick="openTab(event,'lyzhi')">Лыжи</button>
+    <button class="tab-btn" onclick="openTab(event,'khomut')">Хомут</button>
+    <button class="tab-btn" onclick="openTab(event,'ushkuy')">Ушкуй</button>
+    <button class="tab-btn" onclick="openTab(event,'ladya')">Ладья</button>
+  </div>
+
+  <div id="sani" class="tab-content active">
+    <h4>Сани: универсальность и сакральный статус</h4>
+    <p>Сани являлись одним из наиболее древних и универсальных средств сухопутного передвижения. Их использование фиксируется археологическими и письменными источниками на протяжении многих веков. В отличие от колёсных повозок, сани демонстрировали высокую проходимость как зимой, так и в межсезонье.</p>
+    <p>Основу конструкции составляли два длинных полоза из прочных пород древесины — клён, дуб, берёза. В полозья вставлялись вертикальные стойки — копылья, поверх которых устанавливались продольные балки — нащепы. Помимо практического применения, сани имели важное символическое значение в погребальных обрядах.</p>
+  </div>
+
+  <div id="lyzhi" class="tab-content">
+    <h4>Лыжи: преодоление зимней изоляции</h4>
+    <p>Лыжи позволяли эффективно передвигаться по глубокому снегу, обеспечивая возможность хозяйственной деятельности, охоты и военных операций. Упоминания о лыжах встречаются в летописях уже с конца XI века.</p>
+    <p>Существовало два основных типа: голицы — простые деревянные лыжи с гладкой поверхностью, и камусные лыжи (подволоки), нижняя часть которых покрывалась мехом оленя или лося. Ворс располагался назад, позволяя свободно скользить вперёд, но создавая сопротивление при движении назад — идеально для подъёма по склонам.</p>
+  </div>
+
+  <div id="khomut" class="tab-content">
+    <h4>Хомут: революция в тяговой силе</h4>
+    <p>Появление жёсткого хомута в X–XI веках произвело революцию в транспорте. До этого использовалось ярмо, сдавливавшее дыхательные пути лошади. Хомут увеличил тяговое усилие в 3–4 раза, позволив перевозить грузы до 500 кг на одну лошадь.</p>
+    <p>Конструкция включала клещи — жёсткий деревянный каркас, хомутину — мягкую подкладку из соломы или шерсти, а также уникальную систему оглоблей и дуги, выступавшей амортизатором. Это обеспечило рентабельность сухопутных перевозок и позволило формировать тяжёлые обозы.</p>
+  </div>
+
+  <div id="ushkuy" class="tab-content">
+    <h4>Ушкуй: судно экспансии</h4>
+    <p>Ушкуй — узкое, быстроходное плоскодонное судно новгородской традиции. Главная особенность — симметричная форма корпуса: нос и корма были идентичны, что позволяло мгновенно менять направление без разворота.</p>
+    <p>Плоское дно обеспечивало минимальную осадку и лёгкое преодоление волоков. Ушкуи использовались для военных рейдов, торговли пушниной и колонизации северных и восточных территорий, являясь символом военной мобильности Новгородской республики.</p>
+  </div>
+
+  <div id="ladya" class="tab-content">
+    <h4>Ладья: эволюция судостроения</h4>
+    <p>Развитие шло от моноксилов (долблёнок из цельного ствола) к набойным ладьям, где к долблёному основанию набивались дополнительные доски бортов. К XII–XIII векам появились полностью дощатые ладьи с наборным корпусом.</p>
+    <p>Развитая ладья достигала 15–20 метров в длину, вмещала до 60 воинов, оснащалась вёслами и съёмной мачтой с прямым парусом. На её основе возникли специализированные суда: струг для мелководья, насад с высокими бортами и ушкуй для военных операций.</p>
+  </div>
+</div>
+
+<div class="ornament">✦ ✦ ✦</div>
+
+<!-- INFRASTRUCTURE -->
+<div class="section">
+  <h2>Инфраструктура путей</h2>
+  <h3>Система волоков</h3>
+  <p class="drop-cap">Водно-волоковые пути соединяли различные речные бассейны посредством коротких сухопутных участков. Суда вытаскивались на берег по специально подготовленным просекам, на заболоченных участках прокладывались гати, а на твёрдых — перемещались на деревянных катках. Контроль над волоками означал контроль над торговыми потоками.</p>
+
+  <h3>Деревянные мостовые</h3>
+  <p>Археологические раскопки Великого Новгорода обнаружили до 28 слоёв деревянных мостовых с X по XV век. Конструкция включала продольные лаги из сосны, поперечные плахи и пазы для жёсткой фиксации. Мостовые не ремонтировались — поверх старого слоя укладывался новый.</p>
+
+  <h3>Ямская гоньба</h3>
+  <p>В XIII–XV веках появилась система регулярных почтовых перевозок. Сеть станций (ямов) располагалась через каждые 30–50 вёрст. Благодаря регулярной смене лошадей гонцы преодолевали до 200–300 км в сутки — недостижимая скорость для обычных путешественников.</p>
+</div>
+
+<div class="ornament">✦ ✦ ✦</div>
+
+<!-- SOURCES -->
+<div class="sources">
+  <h2>Список литературы</h2>
+  <ol>
+    <li>Замятина, Н. Ю. Модели политического пространства / Н. Ю. Замятина // Полис. — 1999. — № 4. — С. 29–42.</li>
+    <li>Анучин, Д. Н. Сани, ладья и кони как принадлежности похоронного обряда. — М. : Тип. А. И. Мамонтова, 1890. — 146 с.</li>
+    <li>Левашова, В. П. Очерки по истории русской деревни X–XIII вв. — М. : Наука, 1967. — 312 с.</li>
+    <li>Колчин, Б. А. Ремесло Древней Руси. — М. : Наука, 1968. — 336 с.</li>
+    <li>Тархов, С. А. Эволюционная морфология транспортных сетей. — Смоленск ; М. : Универсум, 2005. — 384 с.</li>
+    <li>Разин, Е. А. История военного искусства VI–XVI вв. — М. : Воениздат, 1957. — 560 с.</li>
+    <li>Кирпичников, А. Н. Древнерусское оружие. Вып. 3. — Л. : Наука, 1973. — 180 с.</li>
+    <li>Хорошкевич, А. Л. Торговля Великого Новгорода с Прибалтикой и Западной Европой в XIV–XV вв. — М. : Изд-во АН СССР, 1963. — 366 с.</li>
+    <li>Мавродин, В. В. Образование Древнерусского государства. — Л. : Изд-во ЛГУ, 1945. — 376 с.</li>
+    <li>Рыбаков, Б. А. Киевская Русь и русские княжества XII–XIII вв. — М. : Наука, 1982. — 590 с.</li>
+    <li>Янин, В. Л. Новгородские посадники. — М. : Языки славянской культуры, 2003. — 512 с.</li>
+    <li>Вернадский, Г. В. Древняя Русь. — Тверь : ЛЕАН ; М. : Аграф, 1996. — 448 с.</li>
+  </ol>
+</div>
+
+<footer>
+  <div class="ornament-footer">✦ ✦ ✦</div>
+  Транспортная система Средневековой Руси — учебный проект
+</footer>
+
+<script>
+// Tab switching
+function openTab(evt, tabId) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  evt.currentTarget.classList.add('active');
+}
+
+// Leaflet Map
+const map = L.map('map', {
+  center: [56.5, 36],
+  zoom: 5,
+  minZoom: 4,
+  maxZoom: 8
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+}).addTo(map);
+
+// Cities
+const cities = [
+  { name: "Киев", lat: 50.45, lng: 30.52, desc: "Столица Древнерусского государства, ключевой узел пути «из варяг в греки»" },
+  { name: "Новгород", lat: 58.52, lng: 31.28, desc: "Крупнейший торговый центр, база ушкуйников" },
+  { name: "Смоленск", lat: 54.78, lng: 32.04, desc: "Ключевой узел на Гнёздовском волоке" },
+  { name: "Чернигов", lat: 51.49, lng: 31.29, desc: "Важный торговый и военный центр" },
+  { name: "Псков", lat: 57.82, lng: 28.33, desc: "Торговый город на западной границе" },
+  { name: "Полоцк", lat: 55.49, lng: 28.78, desc: "Центр Полоцкого княжества на Западной Двине" },
+  { name: "Ладога", lat: 59.99, lng: 32.29, desc: "Древнейший город на Волхове, врата в Скандинавию" },
+  { name: "Суздаль", lat: 56.42, lng: 40.44, desc: "Центр Северо-Восточной Руси" },
+  { name: "Владимир", lat: 56.13, lng: 40.42, desc: "Столица Владимиро-Суздальского княжества" },
+  { name: "Муром", lat: 55.57, lng: 42.05, desc: "Город на Оке, связь с Волжским путём" },
+  { name: "Ростов", lat: 57.19, lng: 39.42, desc: "Один из древнейших городов Руси" },
+  { name: "Тверь", lat: 56.86, lng: 35.92, desc: "Город на Волге, перекрёсток торговых путей" },
+  { name: "Рязань", lat: 54.63, lng: 39.69, desc: "Столица Рязанского княжества" },
+  { name: "Константинополь", lat: 41.01, lng: 28.97, desc: "Столица Византии — конечная точка пути «из варяг в греки»" },
+  { name: "Булгар", lat: 54.97, lng: 49.05, desc: "Столица Волжской Булгарии, торговый узел на Волге" },
+];
+
+// City icon
+const cityIcon = L.divIcon({
+  html: '<div style="width:10px;height:10px;background:#8b1a1a;border:2px solid #f4e8c1;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.4)"></div>',
+  className: '',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7]
+});
+
+cities.forEach(c => {
+  L.marker([c.lat, c.lng], { icon: cityIcon })
+    .addTo(map)
+    .bindPopup(`<b>${c.name}</b><br>${c.desc}`);
+});
+
+// Voloks (portages)
+const voloks = [
+  { name: "Гнёздовский волок", lat: 54.78, lng: 32.04, desc: "Связывал Днепр с Западной Двиной. Крупнейший «сервисный центр» на пути из варяг в греки." },
+  { name: "Вышневолоцкий волок", lat: 57.58, lng: 34.56, desc: "Соединял бассейны рек Мсты и Тверцы — ключевой участок Волжского пути." },
+  { name: "Ламский волок", lat: 56.03, lng: 35.67, desc: "Соединял бассейны Волги и Москва-реки." },
+];
+
+const volokIcon = L.divIcon({
+  html: '<div style="width:14px;height:14px;background:#d4a828;border:2px solid #8b1a1a;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.3)"></div>',
+  className: '',
+  iconSize: [18, 18],
+  iconAnchor: [9, 9]
+});
+
+voloks.forEach(v => {
+  L.marker([v.lat, v.lng], { icon: volokIcon })
+    .addTo(map)
+    .bindPopup(`<b>⛰ ${v.name}</b><br>${v.desc}`);
+});
+
+// Routes
+// Path "from the Varangians to the Greeks"
+const varGreeks = [
+  [59.99, 32.29], // Ladoga
+  [58.52, 31.28], // Novgorod
+  [57.58, 34.56], // Vyshniy Volochek area
+  [56.86, 35.92], // Tver
+  [54.78, 32.04], // Smolensk
+  [51.49, 31.29], // Chernigov
+  [50.45, 30.52], // Kiev
+  [46.48, 30.72], // Black Sea coast
+  [41.01, 28.97], // Constantinople
+];
+
+L.polyline(varGreeks, {
+  color: '#1a5276',
+  weight: 4,
+  opacity: 0.8,
+  dashArray: '10,6',
+  smoothFactor: 2
+}).addTo(map).bindPopup('<b>Путь «из варяг в греки»</b><br>Главная торговая магистраль, связывавшая Балтику с Чёрным морем и Византией');
+
+// Volga trade route
+const volgaRoute = [
+  [58.52, 31.28], // Novgorod
+  [57.58, 34.56], // Vyshniy Volochek
+  [56.86, 35.92], // Tver
+  [56.13, 40.42], // Vladimir
+  [55.57, 42.05], // Murom
+  [54.97, 49.05], // Bulgar
+];
+
+L.polyline(volgaRoute, {
+  color: '#b8860b',
+  weight: 4,
+  opacity: 0.8,
+  dashArray: '10,6',
+  smoothFactor: 2
+}).addTo(map).bindPopup('<b>Волжский торговый путь</b><br>Связывал Русь с Волжской Булгарией и странами Востока через Каспий');
+
+// Northern Dvina route
+const northRoute = [
+  [58.52, 31.28], // Novgorod
+  [59.22, 36.55], // Beloozero area
+  [60.77, 39.89], // Vologda area
+  [61.77, 40.85], // towards N. Dvina
+];
+
+L.polyline(northRoute, {
+  color: '#2d5a27',
+  weight: 4,
+  opacity: 0.8,
+  dashArray: '10,6',
+  smoothFactor: 2
+}).addTo(map).bindPopup('<b>Северо-Двинский путь</b><br>Обеспечивал доступ к пушным богатствам Севера и колонизацию северных окраин');
+</script>
+
+</body>
+</html>
