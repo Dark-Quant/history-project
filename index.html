@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Транспорт Средневековой Руси</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Alegreya:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -19,9 +18,7 @@
   --forest: #2d5a27;
   --red: #8b1a1a;
 }
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
   font-family: 'Alegreya', Georgia, serif;
   background: var(--parchment);
@@ -29,8 +26,6 @@ body {
   line-height: 1.7;
   overflow-x: hidden;
 }
-
-/* Parchment texture overlay */
 body::before {
   content: '';
   position: fixed;
@@ -42,8 +37,6 @@ body::before {
   pointer-events: none;
   z-index: 0;
 }
-
-/* Hero */
 .hero {
   position: relative;
   min-height: 100vh;
@@ -57,24 +50,14 @@ body::before {
   background-size: cover;
   overflow: hidden;
 }
-
 .hero::after {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   height: 120px;
   background: linear-gradient(transparent, var(--parchment));
 }
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  padding: 2rem;
-}
-
+.hero-content { position: relative; z-index: 2; max-width: 800px; padding: 2rem; }
 .hero h1 {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(2.5rem, 6vw, 4.5rem);
@@ -84,7 +67,6 @@ body::before {
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 20px rgba(0,0,0,0.5);
 }
-
 .hero .subtitle {
   font-family: 'Alegreya', serif;
   font-style: italic;
@@ -92,44 +74,14 @@ body::before {
   color: var(--parchment-dark);
   margin-bottom: 2rem;
 }
-
-.hero .scroll-hint {
-  color: var(--gold);
-  font-size: 0.95rem;
-  animation: pulse 2s infinite;
-  cursor: pointer;
-}
-
-.hero .scroll-hint span {
-  display: block;
-  font-size: 1.8rem;
-  margin-top: 0.3rem;
-}
-
+.hero .scroll-hint { color: var(--gold); font-size: 0.95rem; animation: pulse 2s infinite; cursor: pointer; }
+.hero .scroll-hint span { display: block; font-size: 1.8rem; margin-top: 0.3rem; }
 @keyframes pulse {
   0%, 100% { opacity: 0.6; transform: translateY(0); }
   50% { opacity: 1; transform: translateY(5px); }
 }
-
-/* Ornament divider */
-.ornament {
-  text-align: center;
-  margin: 3rem 0;
-  color: var(--gold);
-  font-size: 1.5rem;
-  letter-spacing: 1em;
-  opacity: 0.6;
-}
-
-/* Sections */
-.section {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  position: relative;
-  z-index: 1;
-}
-
+.ornament { text-align: center; margin: 3rem 0; color: var(--gold); font-size: 1.5rem; letter-spacing: 1em; opacity: 0.6; }
+.section { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; position: relative; z-index: 1; }
 .section h2 {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -140,31 +92,9 @@ body::before {
   padding-bottom: 0.5rem;
   display: inline-block;
 }
-
-.section h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--ink-light);
-  margin: 2rem 0 1rem;
-}
-
-.section p {
-  margin-bottom: 1.2rem;
-  text-align: justify;
-  text-indent: 2rem;
-  font-size: 1.05rem;
-}
-
-.section p:first-of-type {
-  text-indent: 0;
-}
-
-.section p::first-letter {
-  /* only for first p after h2 */
-}
-
-/* Drop cap for intro paragraphs */
+.section h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink-light); margin: 2rem 0 1rem; }
+.section p { margin-bottom: 1.2rem; text-align: justify; text-indent: 2rem; font-size: 1.05rem; }
+.section p:first-of-type { text-indent: 0; }
 .drop-cap::first-letter {
   font-family: 'Cormorant Garamond', serif;
   font-size: 3.5rem;
@@ -174,269 +104,165 @@ body::before {
   color: var(--red);
   font-weight: 700;
 }
-
-/* Image gallery cards */
-.img-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
-}
-
-.img-card {
-  background: #fff;
-  border: 1px solid var(--parchment-dark);
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(44,24,16,0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.img-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(44,24,16,0.18);
-}
-
-.img-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-  border-bottom: 2px solid var(--gold);
-}
-
-.img-card .caption {
-  padding: 0.8rem 1rem;
-  font-size: 0.9rem;
-  color: var(--ink-light);
-  font-style: italic;
-  text-align: center;
-}
-
-/* Map section */
-.map-section {
-  max-width: 1100px;
-  margin: 3rem auto;
-  padding: 0 1.5rem;
-  position: relative;
-  z-index: 1;
-}
-
+.map-section { max-width: 1200px; margin: 3rem auto; padding: 0 1.5rem; position: relative; z-index: 1; }
 .map-section h2 {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: 700;
   color: var(--ink);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   border-bottom: 2px solid var(--gold);
   padding-bottom: 0.5rem;
   display: inline-block;
 }
-
-#map {
-  width: 100%;
-  height: 550px;
+.map-container {
+  position: relative;
   border: 3px solid var(--ink-light);
   border-radius: 6px;
   box-shadow: 0 8px 30px rgba(44,24,16,0.2);
+  overflow: hidden;
+  background: #e8dcc8;
 }
-
-.map-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
+#map-svg { display: block; width: 100%; cursor: grab; }
+#map-svg:active { cursor: grabbing; }
+.map-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(255,255,250,0.97);
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-family: 'Alegreya', serif;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-width: 280px;
+  box-shadow: 0 4px 16px rgba(44,24,16,0.2);
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 50;
+}
+.map-tooltip b { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--red); display: block; margin-bottom: 3px; }
+.map-tooltip .tt-type { font-size: 0.78rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.map-controls {
+  position: absolute; top: 12px; right: 12px;
+  display: flex; flex-direction: column; gap: 4px; z-index: 40;
+}
+.map-controls button {
+  width: 36px; height: 36px;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 4px;
+  background: rgba(255,255,250,0.92);
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; line-height: 1;
+}
+.map-controls button:hover { background: #fff; }
+.route-filters {
+  display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem;
   padding: 1rem;
   background: rgba(255,255,255,0.7);
   border-radius: 4px;
   border: 1px solid var(--parchment-dark);
-}
-
-.legend-item {
-  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
 }
-
-.legend-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.route-filters .label { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1rem; margin-right: 0.3rem; color: var(--ink); }
+.route-toggle {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px;
+  border: 1.5px solid var(--parchment-dark);
+  background: #fff; cursor: pointer;
+  font-family: 'Alegreya', serif; font-size: 0.88rem; color: var(--ink-light);
+  transition: all 0.2s; user-select: none;
 }
-
-.legend-line {
-  width: 30px;
-  height: 3px;
-  flex-shrink: 0;
-  border-radius: 2px;
-}
-
-/* Tabs for transport types */
-.tabs {
-  display: flex;
-  gap: 0;
-  margin: 2rem 0 0;
-  flex-wrap: wrap;
-}
-
-.tab-btn {
-  font-family: 'Alegreya', serif;
-  padding: 0.7rem 1.2rem;
+.route-toggle.active { border-color: var(--gold); background: rgba(184,134,11,0.1); color: var(--ink); font-weight: 700; }
+.route-toggle .swatch { width: 20px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.map-legend {
+  display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: rgba(255,255,255,0.5);
+  border-radius: 4px;
   border: 1px solid var(--parchment-dark);
-  border-bottom: none;
-  background: var(--parchment-dark);
-  color: var(--ink-light);
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.2s;
-  border-radius: 4px 4px 0 0;
-}
-
-.tab-btn.active {
-  background: #fff;
-  color: var(--ink);
-  font-weight: 700;
-  border-color: var(--gold);
-  border-top: 3px solid var(--gold);
-}
-
-.tab-content {
-  display: none;
-  background: #fff;
-  border: 1px solid var(--gold);
-  padding: 1.5rem;
-  border-radius: 0 4px 4px 4px;
-  box-shadow: 0 4px 15px rgba(44,24,16,0.08);
-}
-
-.tab-content.active { display: block; }
-
-.tab-content h4 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.3rem;
-  color: var(--red);
-  margin-bottom: 0.8rem;
-}
-
-.tab-content p {
-  margin-bottom: 1rem;
-  text-align: justify;
-}
-
-/* Sources */
-.sources {
-  max-width: 900px;
-  margin: 3rem auto;
-  padding: 2rem 1.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-.sources h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--gold);
-  padding-bottom: 0.5rem;
-  display: inline-block;
-}
-
-.sources ol {
-  padding-left: 1.5rem;
-}
-
-.sources li {
-  margin-bottom: 0.6rem;
-  font-size: 0.92rem;
-  color: var(--ink-light);
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  padding: 2rem;
-  background: var(--ink);
-  color: var(--parchment-dark);
   font-size: 0.85rem;
-  margin-top: 3rem;
-  position: relative;
-  z-index: 1;
 }
-
-footer .ornament-footer {
-  color: var(--gold);
-  font-size: 1.2rem;
-  letter-spacing: 0.5em;
-  margin-bottom: 0.5rem;
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.legend-diamond { width: 10px; height: 10px; transform: rotate(45deg); flex-shrink: 0; border-radius: 2px; }
+.tabs { display: flex; gap: 0; margin: 2rem 0 0; flex-wrap: wrap; }
+.tab-btn {
+  font-family: 'Alegreya', serif; padding: 0.7rem 1.2rem;
+  border: 1px solid var(--parchment-dark); border-bottom: none;
+  background: var(--parchment-dark); color: var(--ink-light);
+  cursor: pointer; font-size: 0.95rem; transition: all 0.2s; border-radius: 4px 4px 0 0;
 }
-
-/* Responsive */
+.tab-btn.active { background: #fff; color: var(--ink); font-weight: 700; border-color: var(--gold); border-top: 3px solid var(--gold); }
+.tab-content { display: none; background: #fff; border: 1px solid var(--gold); padding: 1.5rem; border-radius: 0 4px 4px 4px; box-shadow: 0 4px 15px rgba(44,24,16,0.08); }
+.tab-content.active { display: block; }
+.tab-content h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--red); margin-bottom: 0.8rem; }
+.tab-content p { margin-bottom: 1rem; text-align: justify; }
+.sources { max-width: 900px; margin: 3rem auto; padding: 2rem 1.5rem; position: relative; z-index: 1; }
+.sources h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: var(--ink); margin-bottom: 1.5rem; border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem; display: inline-block; }
+.sources ol { padding-left: 1.5rem; }
+.sources li { margin-bottom: 0.6rem; font-size: 0.92rem; color: var(--ink-light); }
+footer { text-align: center; padding: 2rem; background: var(--ink); color: var(--parchment-dark); font-size: 0.85rem; margin-top: 3rem; position: relative; z-index: 1; }
+footer .ornament-footer { color: var(--gold); font-size: 1.2rem; letter-spacing: 0.5em; margin-bottom: 0.5rem; }
 @media (max-width: 600px) {
   .section { padding: 1.5rem 1rem; }
   .tabs { gap: 0.3rem; }
   .tab-btn { padding: 0.5rem 0.8rem; font-size: 0.82rem; }
-  #map { height: 380px; }
-}
-
-/* Leaflet popup styling */
-.leaflet-popup-content-wrapper {
-  font-family: 'Alegreya', serif;
-  border-radius: 4px;
-  border: 1px solid var(--gold);
-}
-.leaflet-popup-content {
-  margin: 10px 14px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-.leaflet-popup-content b {
-  color: var(--red);
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem;
+  .route-toggle { font-size: 0.78rem; padding: 3px 8px; }
 }
 </style>
 </head>
 <body>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-content">
     <h1>Транспорт Средневековой Руси</h1>
     <p class="subtitle">Водные пути, санные дороги и волоки IX–XV веков</p>
     <div class="scroll-hint" onclick="document.querySelector('.map-section').scrollIntoView({behavior:'smooth'})">
-      Исследовать карту
-      <span>⌄</span>
+      Исследовать карту<span>⌄</span>
     </div>
   </div>
 </div>
 
-<!-- MAP -->
 <div class="map-section">
   <h2>Карта путей сообщения Древней Руси</h2>
-  <div id="map"></div>
+  <div class="map-container">
+    <svg id="map-svg" viewBox="0 0 1100 750"></svg>
+    <div class="map-tooltip" id="tooltip"></div>
+    <div class="map-controls">
+      <button id="zoom-in" title="Приблизить">+</button>
+      <button id="zoom-out" title="Отдалить">−</button>
+      <button id="zoom-reset" title="Сбросить">⌂</button>
+    </div>
+  </div>
+  <div class="route-filters">
+    <span class="label">Маршруты:</span>
+    <div class="route-toggle active" data-route="vargreeks"><span class="swatch" style="background:#1a5276"></span>Из варяг в греки</div>
+    <div class="route-toggle active" data-route="volga"><span class="swatch" style="background:#b8860b"></span>Волжский путь</div>
+    <div class="route-toggle active" data-route="north"><span class="swatch" style="background:#2d5a27"></span>Северо-Двинский</div>
+    <div class="route-toggle active" data-route="dnepr"><span class="swatch" style="background:#7b3f00"></span>Днепровский (южный)</div>
+    <div class="route-toggle active" data-route="dvina"><span class="swatch" style="background:#6a0dad"></span>Западно-Двинский</div>
+    <div class="route-toggle active" data-route="oka"><span class="swatch" style="background:#c45b28"></span>Окский путь</div>
+    <div class="route-toggle active" data-route="don"><span class="swatch" style="background:#a02040"></span>Донской путь</div>
+  </div>
   <div class="map-legend">
-    <div class="legend-item"><div class="legend-line" style="background:#1a5276"></div> Путь «из варяг в греки»</div>
-    <div class="legend-item"><div class="legend-line" style="background:#b8860b"></div> Волжский торговый путь</div>
-    <div class="legend-item"><div class="legend-line" style="background:#2d5a27"></div> Северо-Двинский путь</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#8b1a1a"></div> Города</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#d4a828; border:2px solid #8b1a1a"></div> Волоки</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8b1a1a;border:2px solid #f4e8c1"></div> Крупный город</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#5a3a28;border:2px solid #d4c5a0"></div> Город / крепость</div>
+    <div class="legend-item"><div class="legend-diamond" style="background:#d4a828;border:2px solid #8b1a1a"></div> Волок (перевал)</div>
   </div>
 </div>
 
 <div class="ornament">✦ ✦ ✦</div>
 
-<!-- INTRO -->
 <div class="section">
   <h2>Введение</h2>
   <p class="drop-cap">Транспортная система Средневековой Руси формировалась под воздействием природных, экономических и политических факторов. Огромная территория государства, покрытая лесами, болотами и разветвлённой речной сетью, определяла специфику путей сообщения. В отличие от стран Западной Европы, где ключевую роль играли сухопутные дороги, на Руси транспортная система строилась вокруг водных артерий, сезонных дорог и специализированных средств передвижения.</p>
   <p>Особое значение имела сезонность. Зимой замёрзшие реки и болота превращались в удобные транспортные магистрали, тогда как весной и осенью наступала распутица — период, когда передвижение становилось практически невозможным.</p>
 </div>
 
-<!-- TRANSPORT TYPES with tabs -->
 <div class="section">
   <h2>Виды транспорта</h2>
   <div class="tabs">
@@ -446,56 +272,47 @@ footer .ornament-footer {
     <button class="tab-btn" onclick="openTab(event,'ushkuy')">Ушкуй</button>
     <button class="tab-btn" onclick="openTab(event,'ladya')">Ладья</button>
   </div>
-
   <div id="sani" class="tab-content active">
     <h4>Сани: универсальность и сакральный статус</h4>
     <p>Сани являлись одним из наиболее древних и универсальных средств сухопутного передвижения. Их использование фиксируется археологическими и письменными источниками на протяжении многих веков. В отличие от колёсных повозок, сани демонстрировали высокую проходимость как зимой, так и в межсезонье.</p>
     <p>Основу конструкции составляли два длинных полоза из прочных пород древесины — клён, дуб, берёза. В полозья вставлялись вертикальные стойки — копылья, поверх которых устанавливались продольные балки — нащепы. Помимо практического применения, сани имели важное символическое значение в погребальных обрядах.</p>
   </div>
-
   <div id="lyzhi" class="tab-content">
     <h4>Лыжи: преодоление зимней изоляции</h4>
     <p>Лыжи позволяли эффективно передвигаться по глубокому снегу, обеспечивая возможность хозяйственной деятельности, охоты и военных операций. Упоминания о лыжах встречаются в летописях уже с конца XI века.</p>
-    <p>Существовало два основных типа: голицы — простые деревянные лыжи с гладкой поверхностью, и камусные лыжи (подволоки), нижняя часть которых покрывалась мехом оленя или лося. Ворс располагался назад, позволяя свободно скользить вперёд, но создавая сопротивление при движении назад — идеально для подъёма по склонам.</p>
+    <p>Существовало два основных типа: голицы — простые деревянные лыжи с гладкой поверхностью, и камусные лыжи (подволоки), нижняя часть которых покрывалась мехом оленя или лося.</p>
   </div>
-
   <div id="khomut" class="tab-content">
     <h4>Хомут: революция в тяговой силе</h4>
     <p>Появление жёсткого хомута в X–XI веках произвело революцию в транспорте. До этого использовалось ярмо, сдавливавшее дыхательные пути лошади. Хомут увеличил тяговое усилие в 3–4 раза, позволив перевозить грузы до 500 кг на одну лошадь.</p>
-    <p>Конструкция включала клещи — жёсткий деревянный каркас, хомутину — мягкую подкладку из соломы или шерсти, а также уникальную систему оглоблей и дуги, выступавшей амортизатором. Это обеспечило рентабельность сухопутных перевозок и позволило формировать тяжёлые обозы.</p>
+    <p>Конструкция включала клещи — жёсткий деревянный каркас, хомутину — мягкую подкладку из соломы или шерсти, а также уникальную систему оглоблей и дуги, выступавшей амортизатором.</p>
   </div>
-
   <div id="ushkuy" class="tab-content">
     <h4>Ушкуй: судно экспансии</h4>
     <p>Ушкуй — узкое, быстроходное плоскодонное судно новгородской традиции. Главная особенность — симметричная форма корпуса: нос и корма были идентичны, что позволяло мгновенно менять направление без разворота.</p>
-    <p>Плоское дно обеспечивало минимальную осадку и лёгкое преодоление волоков. Ушкуи использовались для военных рейдов, торговли пушниной и колонизации северных и восточных территорий, являясь символом военной мобильности Новгородской республики.</p>
+    <p>Плоское дно обеспечивало минимальную осадку и лёгкое преодоление волоков. Ушкуи использовались для военных рейдов, торговли пушниной и колонизации северных и восточных территорий.</p>
   </div>
-
   <div id="ladya" class="tab-content">
     <h4>Ладья: эволюция судостроения</h4>
     <p>Развитие шло от моноксилов (долблёнок из цельного ствола) к набойным ладьям, где к долблёному основанию набивались дополнительные доски бортов. К XII–XIII векам появились полностью дощатые ладьи с наборным корпусом.</p>
-    <p>Развитая ладья достигала 15–20 метров в длину, вмещала до 60 воинов, оснащалась вёслами и съёмной мачтой с прямым парусом. На её основе возникли специализированные суда: струг для мелководья, насад с высокими бортами и ушкуй для военных операций.</p>
+    <p>Развитая ладья достигала 15–20 метров в длину, вмещала до 60 воинов, оснащалась вёслами и съёмной мачтой с прямым парусом.</p>
   </div>
 </div>
 
 <div class="ornament">✦ ✦ ✦</div>
 
-<!-- INFRASTRUCTURE -->
 <div class="section">
   <h2>Инфраструктура путей</h2>
   <h3>Система волоков</h3>
   <p class="drop-cap">Водно-волоковые пути соединяли различные речные бассейны посредством коротких сухопутных участков. Суда вытаскивались на берег по специально подготовленным просекам, на заболоченных участках прокладывались гати, а на твёрдых — перемещались на деревянных катках. Контроль над волоками означал контроль над торговыми потоками.</p>
-
   <h3>Деревянные мостовые</h3>
   <p>Археологические раскопки Великого Новгорода обнаружили до 28 слоёв деревянных мостовых с X по XV век. Конструкция включала продольные лаги из сосны, поперечные плахи и пазы для жёсткой фиксации. Мостовые не ремонтировались — поверх старого слоя укладывался новый.</p>
-
   <h3>Ямская гоньба</h3>
   <p>В XIII–XV веках появилась система регулярных почтовых перевозок. Сеть станций (ямов) располагалась через каждые 30–50 вёрст. Благодаря регулярной смене лошадей гонцы преодолевали до 200–300 км в сутки — недостижимая скорость для обычных путешественников.</p>
 </div>
 
 <div class="ornament">✦ ✦ ✦</div>
 
-<!-- SOURCES -->
 <div class="sources">
   <h2>Список литературы</h2>
   <ol>
@@ -520,7 +337,6 @@ footer .ornament-footer {
 </footer>
 
 <script>
-// Tab switching
 function openTab(evt, tabId) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -528,127 +344,296 @@ function openTab(evt, tabId) {
   evt.currentTarget.classList.add('active');
 }
 
-// Leaflet Map
-const map = L.map('map', {
-  center: [56.5, 36],
-  zoom: 5,
-  minZoom: 4,
-  maxZoom: 8
+// ========== D3 SVG MAP ==========
+const W = 1100, H = 750;
+const svg = d3.select('#map-svg');
+const tooltip = document.getElementById('tooltip');
+
+const latMin = 38, latMax = 64, lngMin = 18, lngMax = 56;
+function proj(lat, lng) {
+  return [((lng - lngMin) / (lngMax - lngMin)) * W, ((latMax - lat) / (latMax - latMin)) * H];
+}
+
+const g = svg.append('g');
+
+// Parchment bg
+g.append('rect').attr('width', W).attr('height', H).attr('fill', '#e8dcc8');
+
+// Grid
+for (let lat = 40; lat <= 62; lat += 2) {
+  const [,y] = proj(lat, lngMin);
+  g.append('line').attr('x1',0).attr('y1',y).attr('x2',W).attr('y2',y)
+    .attr('stroke','#c9b896').attr('stroke-width',0.4).attr('stroke-dasharray','4,6');
+}
+for (let lng = 20; lng <= 54; lng += 4) {
+  const [x] = proj(latMax, lng);
+  g.append('line').attr('x1',x).attr('y1',0).attr('x2',x).attr('y2',H)
+    .attr('stroke','#c9b896').attr('stroke-width',0.4).attr('stroke-dasharray','4,6');
+}
+
+// Compass
+const cg = g.append('g').attr('transform','translate(60,60)');
+[['С',0,-28],['Ю',0,38],['З',-30,5],['В',30,5]].forEach(([t,x,y])=>{
+  cg.append('text').attr('text-anchor','middle').attr('x',x).attr('y',y).attr('fill','#8b1a1a')
+    .attr('font-family','Cormorant Garamond, serif').attr('font-size','14px').attr('font-weight','700').text(t);
+});
+cg.append('line').attr('x1',0).attr('y1',-20).attr('x2',0).attr('y2',20).attr('stroke','#8b1a1a').attr('stroke-width',1.5);
+cg.append('line').attr('x1',-20).attr('y1',0).attr('x2',20).attr('y2',0).attr('stroke','#8b1a1a').attr('stroke-width',1.5);
+cg.append('polygon').attr('points','0,-16 6,0 0,16 -6,0').attr('fill','none').attr('stroke','#b8860b').attr('stroke-width',1);
+
+// Water bodies
+function waterLabel(lat,lng,text,opts={}) {
+  const [x,y] = proj(lat,lng);
+  const t = g.append('text').attr('x',x).attr('y',y).attr('text-anchor','middle').attr('fill','#3a6b8c').attr('opacity',0.65)
+    .attr('font-family','Alegreya, serif').attr('font-style','italic').attr('font-size',opts.size||'12px').text(text);
+  if (opts.rotate) t.attr('transform',`rotate(${opts.rotate},${x},${y})`);
+}
+
+// Helper to draw water ellipse
+function waterEllipse(lat,lng,rx,ry,op) {
+  const [cx,cy]=proj(lat,lng);
+  g.append('ellipse').attr('cx',cx).attr('cy',cy).attr('rx',rx).attr('ry',ry).attr('fill','#b8cfdb').attr('opacity',op);
+  return [cx,cy];
+}
+
+// Black Sea
+waterEllipse(43,34,130,38,0.45);
+waterLabel(43,34,'Чёрное море',{size:'13px'});
+// Azov
+waterEllipse(46.2,38,30,18,0.4);
+waterLabel(46,38,'Азовское',{size:'9px'});
+// Baltic
+waterEllipse(58,22,28,65,0.4);
+waterLabel(58,21,'Балтика',{size:'11px',rotate:-70});
+// Caspian
+waterEllipse(42.5,50.5,28,50,0.4);
+waterLabel(43,51,'Каспий',{size:'11px'});
+// Lakes
+[[60.8,31.5,18,22,'Ладожское оз.'],[58.3,31,10,8,'оз. Ильмень'],[61.5,35.5,13,18,'Онежское оз.'],[60.2,37.6,7,7,'Белое оз.']]
+.forEach(([lat,lng,rx,ry,name])=>{
+  const [cx,cy]=waterEllipse(lat,lng,rx,ry,0.55);
+  g.append('text').attr('x',cx).attr('y',cy+ry+10).attr('text-anchor','middle').attr('fill','#3a6b8c').attr('opacity',0.5)
+    .attr('font-family','Alegreya, serif').attr('font-style','italic').attr('font-size','8px').text(name);
 });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
-}).addTo(map);
+// Rivers
+const lineGen = d3.line().x(d=>d[0]).y(d=>d[1]).curve(d3.curveCatmullRom.alpha(0.5));
+function drawRiver(pts) {
+  g.append('path').attr('d', lineGen(pts.map(p=>proj(p[0],p[1]))))
+    .attr('fill','none').attr('stroke','#9cbdd4').attr('stroke-width',1.8).attr('opacity',0.4);
+}
+// Dnepr
+drawRiver([[56.3,33.7],[55.5,33.2],[54.8,32],[53.9,31.5],[52.5,31.2],[51.5,31.3],[50.5,30.5],[49,33.4],[48,35],[47,34.6],[46.5,33.5]]);
+// Volga
+drawRiver([[57.5,33],[57,35.9],[56.3,38.5],[56.1,40.4],[55.8,43.5],[55,49],[54,49.5],[52,47],[49,45],[47,48],[46,49.5]]);
+// W. Dvina
+drawRiver([[55.5,33],[55.5,29],[56.9,24.1]]);
+// Oka
+drawRiver([[53.3,36.5],[54,38],[54.5,39.7],[55.1,40.5],[55.6,42],[56.3,44]]);
+// Don
+drawRiver([[54,39],[52.5,40],[51,41],[49.5,42],[48,40],[47.3,39.7]]);
+// Volkhov
+drawRiver([[60.5,32],[59.2,31.5],[58.5,31.3]]);
+// Neva
+drawRiver([[59.95,30.3],[60.2,31]]);
+// N. Dvina
+drawRiver([[60.5,40],[61.5,41.5],[63,41]]);
+// Desna
+drawRiver([[54.5,33.5],[53.5,33],[52,33.3],[51.5,31.3]]);
+// Lovati
+drawRiver([[58.3,31],[57,31],[56.3,31.5]]);
+// Msta
+drawRiver([[58.2,32.5],[57.6,34.5]]);
 
-// Cities
+// ===== ROUTES =====
+const routeLayer = g.append('g');
+const routes = {
+  vargreeks: {
+    color:'#1a5276', name:'Путь «из варяг в греки»',
+    desc:'Главная магистраль IX–XI вв. Из Скандинавии через Балтику, Неву, Ладогу, Волхов, оз. Ильмень, Ловать, волоки к Днепру и далее в Чёрное море к Константинополю.',
+    points:[[60.5,30.3],[60,31.5],[59.95,32],[58.5,31.3],[57,31],[56.3,31.5],[54.8,32],[53,31.3],[51.5,31.3],[50.5,30.5],[49,33],[47,34.5],[46.5,33],[44,31],[41,29]]
+  },
+  volga: {
+    color:'#b8860b', name:'Волжский торговый путь',
+    desc:'Из Новгорода через Вышневолоцкий волок на Тверцу, далее по Волге к Булгару и Каспию. Торговля с Востоком — шёлк, серебро, пряности.',
+    points:[[58.5,31.3],[58.2,32.5],[57.6,34.5],[57,35.9],[57.53,38.3],[56.3,38.5],[56.1,40.4],[55.8,43.5],[55,49],[54,49.5],[52,47],[49,45],[47,48],[46,49.5]]
+  },
+  north: {
+    color:'#2d5a27', name:'Северо-Двинский путь',
+    desc:'Новгород → Белоозеро → Вологда → Северная Двина → Белое море. Путь к пушным богатствам Русского Севера, колонизация.',
+    points:[[58.5,31.3],[59.2,34],[60.2,37.6],[59.2,39.5],[60.5,40],[61.5,41.5],[63,41]]
+  },
+  dnepr: {
+    color:'#7b3f00', name:'Днепровский путь (южный)',
+    desc:'Из Смоленска и Киева вниз по Днепру через пороги к Чёрному морю. Торговля с Причерноморьем и Византией.',
+    points:[[54.8,32],[53,31.3],[51.5,31.3],[50.5,30.5],[49,33.4],[48,35],[47,34.6],[46.5,33.5]]
+  },
+  dvina: {
+    color:'#6a0dad', name:'Западно-Двинский путь',
+    desc:'По Западной Двине из Полоцка и Витебска к Балтийскому морю. Связь с Ригой и Ганзейским союзом.',
+    points:[[55.5,33],[55.19,30.2],[55.5,29],[56.3,26],[56.9,24.1]]
+  },
+  oka: {
+    color:'#c45b28', name:'Окский путь',
+    desc:'По Оке от Рязани через Коломну к Мурому и далее к Волге. Связывал центральные земли с Волжским торговым путём.',
+    points:[[53.3,36.5],[54,38],[54.5,39.7],[55.08,38.8],[55.1,40.5],[55.6,42],[56.3,44]]
+  },
+  don: {
+    color:'#a02040', name:'Донской путь',
+    desc:'По Дону к Азовскому морю. Торговля с Причерноморьем, связь со степными народами. Переволока Дон–Волга у Царицына.',
+    points:[[54,39],[52.5,40],[51,41],[49.5,42],[49,43.5],[48,40],[47.3,39.7]]
+  }
+};
+
+Object.entries(routes).forEach(([key, r]) => {
+  const coords = r.points.map(p => proj(p[0], p[1]));
+  routeLayer.append('path')
+    .attr('class', `route route-${key}`)
+    .attr('d', lineGen(coords))
+    .attr('fill', 'none')
+    .attr('stroke', r.color)
+    .attr('stroke-width', 3.5)
+    .attr('stroke-dasharray', '8,5')
+    .attr('stroke-linecap', 'round')
+    .attr('opacity', 0.85)
+    .style('cursor','pointer')
+    .on('mouseover', function(e) {
+      d3.select(this).attr('stroke-width', 6).attr('opacity', 1);
+      showTooltip(e, `<b>${r.name}</b><div class="tt-type">Торговый путь</div>${r.desc}`);
+    })
+    .on('mousemove', e => moveTooltip(e))
+    .on('mouseout', function() {
+      d3.select(this).attr('stroke-width', 3.5).attr('opacity', 0.85);
+      hideTooltip();
+    });
+});
+
+// ===== CITIES =====
 const cities = [
-  { name: "Киев", lat: 50.45, lng: 30.52, desc: "Столица Древнерусского государства, ключевой узел пути «из варяг в греки»" },
-  { name: "Новгород", lat: 58.52, lng: 31.28, desc: "Крупнейший торговый центр, база ушкуйников" },
-  { name: "Смоленск", lat: 54.78, lng: 32.04, desc: "Ключевой узел на Гнёздовском волоке" },
-  { name: "Чернигов", lat: 51.49, lng: 31.29, desc: "Важный торговый и военный центр" },
-  { name: "Псков", lat: 57.82, lng: 28.33, desc: "Торговый город на западной границе" },
-  { name: "Полоцк", lat: 55.49, lng: 28.78, desc: "Центр Полоцкого княжества на Западной Двине" },
-  { name: "Ладога", lat: 59.99, lng: 32.29, desc: "Древнейший город на Волхове, врата в Скандинавию" },
-  { name: "Суздаль", lat: 56.42, lng: 40.44, desc: "Центр Северо-Восточной Руси" },
-  { name: "Владимир", lat: 56.13, lng: 40.42, desc: "Столица Владимиро-Суздальского княжества" },
-  { name: "Муром", lat: 55.57, lng: 42.05, desc: "Город на Оке, связь с Волжским путём" },
-  { name: "Ростов", lat: 57.19, lng: 39.42, desc: "Один из древнейших городов Руси" },
-  { name: "Тверь", lat: 56.86, lng: 35.92, desc: "Город на Волге, перекрёсток торговых путей" },
-  { name: "Рязань", lat: 54.63, lng: 39.69, desc: "Столица Рязанского княжества" },
-  { name: "Константинополь", lat: 41.01, lng: 28.97, desc: "Столица Византии — конечная точка пути «из варяг в греки»" },
-  { name: "Булгар", lat: 54.97, lng: 49.05, desc: "Столица Волжской Булгарии, торговый узел на Волге" },
+  {n:"Киев",lat:50.45,lng:30.52,m:1,d:"Столица Древнерусского государства (IX–XII вв.). Ключевой узел пути «из варяг в греки». Центр торговли с Византией."},
+  {n:"Новгород",lat:58.52,lng:31.28,m:1,d:"Крупнейший торговый центр, республика. Узел всех северных маршрутов. База ушкуйников."},
+  {n:"Смоленск",lat:54.78,lng:32.04,m:1,d:"Стратегический узел на Гнёздовском волоке. Переход между Днепром и Западной Двиной."},
+  {n:"Владимир",lat:56.13,lng:40.42,m:1,d:"Столица Владимиро-Суздальского княжества (XII–XIII вв.)."},
+  {n:"Константинополь",lat:41.01,lng:28.97,m:1,d:"Столица Византии. Конечная южная точка пути «из варяг в греки»."},
+  {n:"Булгар",lat:54.97,lng:49.05,m:1,d:"Столица Волжской Булгарии. Важнейший торговый узел на Средней Волге."},
+  {n:"Москва",lat:55.75,lng:37.62,m:1,d:"Возвышалась с XII в. на пересечении водных путей Оки и Волги."},
+  {n:"Чернигов",lat:51.49,lng:31.29,d:"Центр Черниговского княжества на Десне."},
+  {n:"Псков",lat:57.82,lng:28.33,d:"Крепость на западной границе. Торговля с Ливонией."},
+  {n:"Полоцк",lat:55.49,lng:28.78,d:"Центр Полоцкого княжества. Контролировал Западно-Двинский путь."},
+  {n:"Старая Ладога",lat:59.99,lng:32.29,d:"Древнейший город на Волхове. «Врата в Скандинавию»."},
+  {n:"Суздаль",lat:56.42,lng:40.44,d:"Один из древнейших городов Залесской Руси."},
+  {n:"Муром",lat:55.57,lng:42.05,d:"Город на Оке. Связь Окского и Волжского путей."},
+  {n:"Ростов Великий",lat:57.19,lng:39.42,d:"Один из древнейших городов. Центр Ростовской земли."},
+  {n:"Тверь",lat:56.86,lng:35.92,d:"Город на Верхней Волге. Перекрёсток водных и сухопутных путей."},
+  {n:"Рязань",lat:54.63,lng:39.69,d:"Столица Рязанского княжества. Контроль Окского пути."},
+  {n:"Переяславль",lat:50.05,lng:31.44,d:"Один из главных городов Южной Руси. Защита днепровского пути."},
+  {n:"Галич",lat:49.13,lng:24.73,d:"Столица Галицкого княжества. Торговля с Венгрией и Польшей."},
+  {n:"Торжок",lat:57.04,lng:34.96,d:"Крепость на Тверце. Путь из Новгорода во Владимир."},
+  {n:"Углич",lat:57.53,lng:38.32,d:"Город на Волге. Промежуточный пункт Волжского пути."},
+  {n:"Коломна",lat:55.08,lng:38.77,d:"Город при впадении Москва-реки в Оку. Транспортный узел."},
+  {n:"Курск",lat:51.73,lng:36.19,d:"Пограничный город. Южные сухопутные дороги."},
+  {n:"Белоозеро",lat:60.03,lng:37.79,d:"Ключевой пункт Северо-Двинского пути."},
+  {n:"Вологда",lat:59.22,lng:39.88,d:"Перевалочный пункт пушной торговли, путь на Север."},
+  {n:"Ярославль",lat:57.63,lng:39.87,d:"Крупный торговый центр на Волге."},
+  {n:"Минск",lat:53.9,lng:27.57,d:"Связь Полоцка с Киевом, сухопутные дороги."},
+  {n:"Витебск",lat:55.19,lng:30.2,d:"Город на Западной Двине. Путь из Полоцка в Смоленск."},
+  {n:"Новгород-Северский",lat:52.0,lng:33.28,d:"Столица Новгород-Северского княжества на Десне."},
+  {n:"Любеч",lat:51.7,lng:30.65,d:"Крепость на Днепре. Съезд князей 1097 г."},
+  {n:"Берестье",lat:52.1,lng:23.7,d:"(Брест) Западная граница. Торговля с Польшей."},
+  {n:"Нижний Новгород",lat:56.33,lng:44.0,d:"Крепость на слиянии Оки и Волги (с 1221 г.)."},
+  {n:"Саркел / Белая Вежа",lat:47.5,lng:42.2,d:"Хазарская крепость на Дону. Контроль Донского пути."},
+  {n:"Туров",lat:52.07,lng:27.74,d:"Центр Туровского княжества. Путь по Припяти."},
+  {n:"Переволочна",lat:48.97,lng:34.6,d:"Важная переправа через Днепр ниже порогов."},
+  {n:"Олешье",lat:46.6,lng:32.6,d:"Торговая фактория у устья Днепра на Чёрном море."},
+  {n:"Корела",lat:61.7,lng:30.1,d:"Крепость на Карельском перешейке. Северная граница."},
+  {n:"Устюг",lat:60.76,lng:46.31,d:"Город на Северной Двине. Путь к Белому морю и Уралу."},
 ];
 
-// City icon
-const cityIcon = L.divIcon({
-  html: '<div style="width:10px;height:10px;background:#8b1a1a;border:2px solid #f4e8c1;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.4)"></div>',
-  className: '',
-  iconSize: [14, 14],
-  iconAnchor: [7, 7]
-});
-
+const cityLayer = g.append('g');
 cities.forEach(c => {
-  L.marker([c.lat, c.lng], { icon: cityIcon })
-    .addTo(map)
-    .bindPopup(`<b>${c.name}</b><br>${c.desc}`);
+  const [x, y] = proj(c.lat, c.lng);
+  const gr = cityLayer.append('g').attr('transform', `translate(${x},${y})`);
+  const r = c.m ? 6 : 4;
+  const fill = c.m ? '#8b1a1a' : '#5a3a28';
+  const stroke = c.m ? '#f4e8c1' : '#d4c5a0';
+  gr.append('circle').attr('r', r).attr('fill', fill).attr('stroke', stroke).attr('stroke-width', 1.5).style('cursor','pointer');
+  gr.append('text').attr('x', r + 4).attr('y', 3)
+    .attr('font-family','Cormorant Garamond, serif')
+    .attr('font-size', c.m ? '11px' : '9px')
+    .attr('font-weight', c.m ? '700' : '400')
+    .attr('fill', c.m ? '#2c1810' : '#5a3a28')
+    .attr('pointer-events','none').text(c.n);
+  gr.on('mouseover', function(e) {
+    d3.select(this).select('circle').transition().duration(150).attr('r', r * 1.6);
+    showTooltip(e, `<b>${c.n}</b><div class="tt-type">${c.m?'Крупный город':'Город / крепость'}</div>${c.d}`);
+  }).on('mousemove', e => moveTooltip(e)).on('mouseout', function() {
+    d3.select(this).select('circle').transition().duration(150).attr('r', r);
+    hideTooltip();
+  });
 });
 
-// Voloks (portages)
+// ===== VOLOKS =====
 const voloks = [
-  { name: "Гнёздовский волок", lat: 54.78, lng: 32.04, desc: "Связывал Днепр с Западной Двиной. Крупнейший «сервисный центр» на пути из варяг в греки." },
-  { name: "Вышневолоцкий волок", lat: 57.58, lng: 34.56, desc: "Соединял бассейны рек Мсты и Тверцы — ключевой участок Волжского пути." },
-  { name: "Ламский волок", lat: 56.03, lng: 35.67, desc: "Соединял бассейны Волги и Москва-реки." },
+  {n:"Гнёздовский волок",lat:54.8,lng:32.1,d:"Крупнейший перевалочный центр. Связывал бассейн Днепра с Западной Двиной."},
+  {n:"Вышневолоцкий волок",lat:57.58,lng:34.56,d:"Бассейны рек Мсты и Тверцы. Путь из Новгорода на Волгу."},
+  {n:"Ламский волок",lat:56.03,lng:35.67,d:"Бассейн Волги (р. Лама) → Москва-река. Путь в Залесскую Русь."},
+  {n:"Селигерский волок",lat:57.2,lng:33.1,d:"У озера Селигер. Верховья Волги ↔ бассейн Западной Двины."},
+  {n:"Днепровские пороги",lat:47.9,lng:35.1,d:"Опаснейший участок пути по Днепру. Суда перетаскивались по берегу."},
+  {n:"Волок Ловати–Днепра",lat:56.3,lng:31.5,d:"Между верховьями Ловати и притоками Днепра. Часть пути «из варяг в греки»."},
+  {n:"Белозерский волок",lat:60.0,lng:37.5,d:"Из Белого озера к притокам Северной Двины. Начало пути на Север."},
+  {n:"Переволока Дон–Волга",lat:49.0,lng:43.5,d:"Кратчайший перешеек Дон–Волга. Стратегический для торговли с Каспием."},
+  {n:"Мстинский волок",lat:58.2,lng:32.5,d:"Озеро Ильмень → р. Мста. Путь из Новгорода к Верхней Волге."},
+  {n:"Серегерский волок",lat:56.6,lng:33.8,d:"Волок между притоками Ловати и Волги. Связь верхних бассейнов."},
 ];
 
-const volokIcon = L.divIcon({
-  html: '<div style="width:14px;height:14px;background:#d4a828;border:2px solid #8b1a1a;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.3)"></div>',
-  className: '',
-  iconSize: [18, 18],
-  iconAnchor: [9, 9]
-});
-
+const volokLayer = g.append('g');
 voloks.forEach(v => {
-  L.marker([v.lat, v.lng], { icon: volokIcon })
-    .addTo(map)
-    .bindPopup(`<b>⛰ ${v.name}</b><br>${v.desc}`);
+  const [x, y] = proj(v.lat, v.lng);
+  const gr = volokLayer.append('g').attr('transform', `translate(${x},${y})`);
+  gr.append('rect').attr('x',-5).attr('y',-5).attr('width',10).attr('height',10)
+    .attr('fill','#d4a828').attr('stroke','#8b1a1a').attr('stroke-width',1.5)
+    .attr('transform','rotate(45)').style('cursor','pointer');
+  gr.append('text').attr('x',10).attr('y',3)
+    .attr('font-family','Alegreya, serif').attr('font-size','8.5px').attr('font-style','italic')
+    .attr('fill','#7b5b00').attr('pointer-events','none').text(v.n);
+  gr.on('mouseover', function(e) {
+    d3.select(this).select('rect').transition().duration(150).attr('x',-7).attr('y',-7).attr('width',14).attr('height',14);
+    showTooltip(e, `<b>⛰ ${v.n}</b><div class="tt-type">Волок (перевал)</div>${v.d}`);
+  }).on('mousemove', e => moveTooltip(e)).on('mouseout', function() {
+    d3.select(this).select('rect').transition().duration(150).attr('x',-5).attr('y',-5).attr('width',10).attr('height',10);
+    hideTooltip();
+  });
 });
 
-// Routes
-// Path "from the Varangians to the Greeks"
-const varGreeks = [
-  [59.99, 32.29], // Ladoga
-  [58.52, 31.28], // Novgorod
-  [57.58, 34.56], // Vyshniy Volochek area
-  [56.86, 35.92], // Tver
-  [54.78, 32.04], // Smolensk
-  [51.49, 31.29], // Chernigov
-  [50.45, 30.52], // Kiev
-  [46.48, 30.72], // Black Sea coast
-  [41.01, 28.97], // Constantinople
-];
+// Tooltip
+function showTooltip(e, html) { tooltip.innerHTML = html; tooltip.style.opacity = '1'; moveTooltip(e); }
+function moveTooltip(e) {
+  const rect = document.querySelector('.map-container').getBoundingClientRect();
+  let x = e.clientX - rect.left + 15, y = e.clientY - rect.top - 10;
+  if (x + 280 > rect.width) x = e.clientX - rect.left - 290;
+  if (y + 150 > rect.height) y -= 120;
+  if (y < 5) y = 5;
+  tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+}
+function hideTooltip() { tooltip.style.opacity = '0'; }
 
-L.polyline(varGreeks, {
-  color: '#1a5276',
-  weight: 4,
-  opacity: 0.8,
-  dashArray: '10,6',
-  smoothFactor: 2
-}).addTo(map).bindPopup('<b>Путь «из варяг в греки»</b><br>Главная торговая магистраль, связывавшая Балтику с Чёрным морем и Византией');
+// Zoom & Pan
+const zoom = d3.zoom().scaleExtent([1, 6]).translateExtent([[0,0],[W,H]])
+  .on('zoom', e => g.attr('transform', e.transform));
+svg.call(zoom);
+document.getElementById('zoom-in').addEventListener('click', () => svg.transition().duration(300).call(zoom.scaleBy, 1.5));
+document.getElementById('zoom-out').addEventListener('click', () => svg.transition().duration(300).call(zoom.scaleBy, 0.67));
+document.getElementById('zoom-reset').addEventListener('click', () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
 
-// Volga trade route
-const volgaRoute = [
-  [58.52, 31.28], // Novgorod
-  [57.58, 34.56], // Vyshniy Volochek
-  [56.86, 35.92], // Tver
-  [56.13, 40.42], // Vladimir
-  [55.57, 42.05], // Murom
-  [54.97, 49.05], // Bulgar
-];
-
-L.polyline(volgaRoute, {
-  color: '#b8860b',
-  weight: 4,
-  opacity: 0.8,
-  dashArray: '10,6',
-  smoothFactor: 2
-}).addTo(map).bindPopup('<b>Волжский торговый путь</b><br>Связывал Русь с Волжской Булгарией и странами Востока через Каспий');
-
-// Northern Dvina route
-const northRoute = [
-  [58.52, 31.28], // Novgorod
-  [59.22, 36.55], // Beloozero area
-  [60.77, 39.89], // Vologda area
-  [61.77, 40.85], // towards N. Dvina
-];
-
-L.polyline(northRoute, {
-  color: '#2d5a27',
-  weight: 4,
-  opacity: 0.8,
-  dashArray: '10,6',
-  smoothFactor: 2
-}).addTo(map).bindPopup('<b>Северо-Двинский путь</b><br>Обеспечивал доступ к пушным богатствам Севера и колонизацию северных окраин');
+// Route filters
+document.querySelectorAll('.route-toggle').forEach(btn => {
+  btn.addEventListener('click', function() {
+    this.classList.toggle('active');
+    const key = this.dataset.route;
+    const on = this.classList.contains('active');
+    d3.selectAll(`.route-${key}`).attr('opacity', on ? 0.85 : 0).attr('pointer-events', on ? 'auto' : 'none');
+  });
+});
 </script>
-
 </body>
 </html>
